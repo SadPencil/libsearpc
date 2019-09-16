@@ -2,29 +2,30 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([libsearpc], [1.0], [freeplant@gmail.com])
+AC_INIT([libsearpc], [3.1.0], [info@seafile.com])
 AC_CONFIG_SRCDIR([lib/searpc-server.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 
 AM_INIT_AUTOMAKE([1.9 foreign])
-AC_MINGW32
+#AC_MINGW32
+AC_CANONICAL_BUILD
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_LIBTOOL
+LT_INIT
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
+#AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_C_INLINE
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-AC_TYPE_UINT16_T
+#AC_C_INLINE
+#AC_TYPE_SIZE_T
+#AC_TYPE_SSIZE_T
+#AC_TYPE_UINT16_T
 
 # Checks for library functions.
-AC_CHECK_FUNCS([memset socket strerror strndup])
+#AC_CHECK_FUNCS([memset socket strerror strndup])
 
 # Options about demos and pysearpc
 
@@ -44,11 +45,11 @@ AC_ARG_ENABLE(server-pkg,
 dnl - check if the macro WIN32 is defined on this compiler.
 AC_MSG_CHECKING(for WIN32)
 
-if test "$MINGW32" = yes; then
+if test "$build_os" = "mingw32" -o "$build_os" = "mingw64"; then
   bwin32=true
   LIB_WS32=-lws2_32
   AC_SUBST(LIB_WS32)
-  AC_MSG_RESULT(compile in mingw32)
+  AC_MSG_RESULT(compile in mingw)
 fi
 
 AM_CONDITIONAL([WIN32], [test "$MINGW32" = "yes"])
@@ -56,7 +57,7 @@ AC_SUBST(WIN32)
 
 AC_MSG_CHECKING(for Mac)
 
-if test ${TERM_PROGRAM} = "Apple_Terminal" ; then
+if test "$(uname -s)" = "Darwin"; then
    bmac=yes
 fi
 
@@ -68,16 +69,19 @@ fi
 AM_CONDITIONAL([MACOS], [test "$bmac" = "yes"])
 AC_SUBST(MACOS)
 
-# If we're building server release package, set the run-time path
-# for the executables. So that the loader will lookup shared libs
-# in 'lib' dir of the release package.
-# Read "man ld.so" for description of $ORIGIN.
-# Refer to http://blog.linuxgamepublishing.com/2009/02/08/our-new-way-to-meet-the-lgpl/
-if test x${server_pkg} = xyes; then
-   SERVER_PKG_RPATH=-Wl,-R,\'\$\$ORIGIN/../../..\'
+AC_MSG_CHECKING(for FreeBSD)
+
+if test "$(uname -s)" = "FreeBSD"; then
+   bfbsd=yes
 fi
 
-AC_SUBST(SERVER_PKG_RPATH)
+if test x$bfbsd = "xyes"; then
+  server_pkg=no
+  AC_MSG_RESULT(compile in FreeBSD)
+fi
+
+AM_CONDITIONAL([FBSD], [test "$bfbsd" = "yes"])
+AC_SUBST(FBSD)
 
 # Checks for libraries.
 
@@ -88,6 +92,11 @@ PKG_CHECK_MODULES(GLIB, [gobject-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+JANSSON_REQUIRED=2.2.1
+
+PKG_CHECK_MODULES(JANSSON, [jansson >= $JANSSON_REQUIRED])
+AC_SUBST(JANSSON_CFLAGS)
+AC_SUBST(JANSSON_LIBS)
 
 AM_PATH_PYTHON([2.4])
 if test "$bwin32" = true; then
@@ -99,16 +108,6 @@ if test "$bwin32" = true; then
       pkgpythondir=${pythondir}/${PACKAGE}
    fi
 fi
-
-if test "$bwin32" = true; then
-   pyexecdir=${PYTHON_DIR}/Lib/site-packages
-   pythondir=${pyexecdir}
-   pkgpyexecdir=${pyexecdir}/${PACKAGE}
-   pkgpythondir=${pythondir}/${PACKAGE}
-fi
-
-
-AC_CONFIG_SUBDIRS([json-glib])
 
 AC_CONFIG_FILES([Makefile
                  lib/Makefile

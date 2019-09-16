@@ -2,22 +2,23 @@
 #define SEARPC_SERVER_H
 
 #include <glib.h>
-#include <json-glib/json-glib.h>
+#include <glib-object.h>
+#include <jansson.h>
 
 #ifndef DFT_DOMAIN
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
 #endif
 
-struct _JsonArray;
-typedef gchar* (*SearpcMarshalFunc) (void *func, struct _JsonArray *param_array,
+typedef gchar* (*SearpcMarshalFunc) (void *func, json_t *param_array,
     gsize *ret_len);
 typedef void (*RegisterMarshalFunc) (void);
 
-void searpc_set_string_to_ret_object (JsonObject *object, gchar *ret);
-void searpc_set_int_to_ret_object (JsonObject *object, gint64 ret);
-void searpc_set_object_to_ret_object (JsonObject *object, GObject *ret);
-void searpc_set_objlist_to_ret_object (JsonObject *object, GList *ret);
-gchar *searpc_marshal_set_ret_common (JsonObject *object, gsize *len, GError *error);
+void searpc_set_string_to_ret_object (json_t *object, char *ret);
+void searpc_set_int_to_ret_object (json_t *object, json_int_t ret);
+void searpc_set_object_to_ret_object (json_t *object, GObject *ret);
+void searpc_set_objlist_to_ret_object (json_t *object, GList *ret);
+void searpc_set_json_to_ret_object (json_t *object, json_t *ret);
+char *searpc_marshal_set_ret_common (json_t *object, gsize *len, GError *error);
 
 /**
  * searpc_server_init:
@@ -25,6 +26,22 @@ gchar *searpc_marshal_set_ret_common (JsonObject *object, gsize *len, GError *er
  * Inititalize searpc server.
  */
 void searpc_server_init (RegisterMarshalFunc register_func);
+
+/**
+ * searpc_server_init_with_slow_log:
+ *
+ * Inititalize searpc server with slow log file.
+ */
+int
+searpc_server_init_with_slow_log (RegisterMarshalFunc register_func,
+                                  const char *slow_log_path,
+                                  gint64 slow_threshold_in);
+
+/**
+ * Used in log rotate.
+ */
+int
+searpc_server_reopen_slow_log (const char *slow_log_path);
 
 /**
  * searpc_server_final:
@@ -95,6 +112,6 @@ gchar *searpc_server_call_function (const char *service,
  *
  * Compute function signature.
  */
-char* searpc_compute_signature (gchar *ret_type, int pnum, ...);
+char* searpc_compute_signature (const gchar *ret_type, int pnum, ...);
 
 #endif

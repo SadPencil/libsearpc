@@ -1,4 +1,4 @@
-Introduction
+Introduction [![Build Status](https://secure.travis-ci.org/haiwen/libsearpc.png?branch=master)](http://travis-ci.org/haiwen/libsearpc)
 ============
 
 Searpc is a simple C language RPC framework based on GObject system. Searpc
@@ -295,6 +295,7 @@ Dependency
 
 The following packages are required to build libsearpc:
 
-*  glib-2.0      >=        2.16.0      
-*  gobject-2.0   >=        2.16.0
+*  glib-2.0      >=        2.26.0      
+*  gobject-2.0   >=        2.26.0
+*  jansson       >=        2.2.1
 *  python simplejson (for pysearpc)
