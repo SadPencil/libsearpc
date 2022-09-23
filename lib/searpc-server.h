@@ -15,6 +15,10 @@
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef gchar* (*SearpcMarshalFunc) (void *func, json_t *param_array,
     gsize *ret_len);
 typedef void (*RegisterMarshalFunc) (void);
@@ -133,5 +137,9 @@ gchar *searpc_server_call_function (const char *service,
  */
 LIBSEARPC_API
 char* searpc_compute_signature (const gchar *ret_type, int pnum, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

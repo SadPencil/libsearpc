@@ -25,6 +25,10 @@
 // the RPC functions implementation's responsibility to guarantee thread safety
 // of the RPC calls. (e.g. using mutexes).
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(WIN32)
 typedef HANDLE SearpcNamedPipe;
 #else
@@ -71,5 +75,9 @@ int searpc_named_pipe_client_connect(SearpcNamedPipeClient *client);
 
 LIBSEARPC_API
 void searpc_free_client_with_pipe_transport (SearpcClient *client);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // SEARPC_NAMED_PIPE_TRANSPORT_H

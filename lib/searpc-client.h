@@ -15,6 +15,10 @@
 #define DFT_DOMAIN g_quark_from_string(G_LOG_DOMAIN)
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef char *(*TransportCB)(void *arg, const gchar *fcall_str,
                              size_t fcall_len, size_t *ret_len);
 
@@ -131,6 +135,9 @@ LIBSEARPC_API int
 searpc_client_generic_callback (char *retstr, size_t len,
                                 void *vdata, const char *errstr);
 
+#ifdef __cplusplus
+}
+#endif
 
 /* in case of transport error, the following code and message will be
  * set in GError */
